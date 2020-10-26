@@ -22,17 +22,9 @@ echo $debug
 set -e
 
 # debug
-# set -x
+#set -x
 
 shopt -s extglob
-
-function indent() {
-  c='s/^/       /'
-  case $(uname) in
-    Darwin) sed -l "$c";;
-    *)      sed -u "$c";;
-  esac
-}
 
 
 # parse and derive params
@@ -46,32 +38,33 @@ mkdir -p $CACHE_DIR $BIN_PATH $TMP_PATH
 
 JULIA_VERSION_major="1.5"
 JULIA_VERSION="julia-1.5.2"
-JULIA_URL="https://github.com/JuliaLang/julia/releases/download/v1.5.2/julia-1.5.2.tar.gz"
+##JULIA_URL="https://github.com/JuliaLang/julia/releases/download/v1.5.2/julia-1.5.2.tar.gz"
 ##JULIA_URL="https://github.com/JuliaLang/julia/releases/download/v1.5.2/julia-1.5.2-full.tar.gz"
+JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.2-linux-x86_64.tar.gz"
 
 JULIA_BINARIES="$CACHE_DIR/${JULIA_VERSION}.tar.gz"
 
 JULIA_PATH="$TMP_PATH/julia"
 
 if [ -f $JULIA_BINARIES ]; then
-  echo "Using Julia binaries from cache" | indent
+  echo "Using Julia binaries from cache"
 else
-  echo "Downloading binaries ($JULIA_URL)" | indent
+  echo "Downloading binaries ($JULIA_URL)"
   curl -L $JULIA_URL -o $JULIA_BINARIES
 fi
 
-echo "Unpacking binaries" | indent
+echo "Unpacking binaries"
 mkdir -p $BUILD_DIR/$JULIA_VERSION && tar xzf $JULIA_BINARIES -C $BUILD_DIR/$JULIA_VERSION --strip-components=1
 
-echo "Creating runtime environment" | indent
+echo "Creating runtime environment"
 mkdir -p $BUILD_DIR/.profile.d
 
 echo "export PATH=\$HOME/julia-\$JULIA_VERSION/bin:\$PATH" >> $BUILD_DIR/.profile.d/julia_paths.sh
 
-echo "Installing packages" | indent
+echo "Installing packages"
 cd $BUILD_DIR
 $JULIA_VERSION/bin/julia package.jl
 
 mv ~/.julia ./
 
-echo "Julia successfully installed" | indent
+echo "Julia successfully installed"
