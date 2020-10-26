@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# bin/compile <build-dir> <cache-dir>
+
+echo "-----> Installing cmake"
+
+# change to the the BUILD_DIR ($1)
+cd $1
+
+# download
+curl https://s3.amazonaws.com/mergeguard/cmake.tar.gz -s -O
+
+# make dir
+mkdir -p /tmp/codon/vendor
+
+# untar the binary to the directory we want
+tar -C /tmp/codon/vendor -xvf cmake.tar.gz
+
+debug=`ls /tmp/codon/vendor/bin`
+echo $debug
+
+# fail fast
+set -e
+
+# debug
+# set -x
+
+shopt -s extglob
+
+function indent() {
+  c='s/^/       /'
+  case $(uname) in
+    Darwin) sed -l "$c";;
+    *)      sed -u "$c";;
+  esac
+}
+
+
+# parse and derive params
+BUILD_DIR=$1
+CACHE_DIR=$2
+
+BIN_PATH="$BUILD_DIR/bin"
+TMP_PATH="$BUILD_DIR/tmp"
+mkdir -p $CACHE_DIR $BIN_PATH $TMP_PATH
+
+
+JULIA_VERSION_major="1.2"
+JULIA_VERSION="julia-1.2.0"
+#S3_BUCKET="julialang"
+JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/${JULIA_VERSION_major}/${JULIA_VERSION}-linux-x86_64.tar.gz"
+
+JULIA_BINARIES="$CACHE_DIR/${JULIA_VERSION}.tar.gz"
+
+JULIA_PATH="$TMP_PATH/julia"
+
+if [ -f $JULIA_BINARIES ]; then
+  echo "Using Julia binaries from cache" | indent
+else
+  echo "Downloading binaries ($JULIA_URL)" | indent
+  curl -L $JULIA_URL -o $JULIA_BINARIES
+fi
+
+echo "Unpacking binaries" | indent
+mkdir -p $BUILD_DIR/$JULIA_VERSION && tar xzf $JULIA_BINARIES -C $BUILD_DIR/$JULIA_VERSION --strip-components=1
+
+echo "Creating runtime environment" | indent
+mkdir -p $BUILD_DIR/.profile.d
+
+echo "export PATH=\$HOME/julia-\$JULIA_VERSION/bin:\$PATH" >> $BUILD_DIR/.profile.d/julia_paths.sh
+
+echo "Installing packages" | indent
+cd $BUILD_DIR
+$JULIA_VERSION/bin/julia package.jl
+
+mv ~/.julia ./
+
+echo "Julia successfully installed" | indent
