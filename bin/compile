@@ -36,11 +36,9 @@ TMP_PATH="$BUILD_DIR/tmp"
 mkdir -p $CACHE_DIR $BIN_PATH $TMP_PATH
 
 
-JULIA_VERSION_major="1.5"
-JULIA_VERSION="julia-1.5.2"
-##JULIA_URL="https://github.com/JuliaLang/julia/releases/download/v1.5.2/julia-1.5.2.tar.gz"
-##JULIA_URL="https://github.com/JuliaLang/julia/releases/download/v1.5.2/julia-1.5.2-full.tar.gz"
-JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.5/julia-1.5.2-linux-x86_64.tar.gz"
+JULIA_VERSION_major="1.6"
+JULIA_VERSION="julia-1.6.0"
+JULIA_URL="https://julialang-s3.julialang.org/bin/linux/x64/1.6/julia-1.6.0-linux-x86_64.tar.gz"
 
 JULIA_BINARIES="$CACHE_DIR/${JULIA_VERSION}.tar.gz"
 
